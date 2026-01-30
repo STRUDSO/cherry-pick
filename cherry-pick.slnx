@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="DistributedSystems.Tests/DistributedSystems.Tests.csproj" />
+  <Project Path="DistributedSystems/DistributedSystems.csproj" />
+</Solution>
