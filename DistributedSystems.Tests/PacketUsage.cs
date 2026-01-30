@@ -6,6 +6,7 @@ namespace DistributedSystems.Tests;
 public static class CarExtensions
 {
     private static PacketKey<string> Id = new(nameof(Id));
+    public static PacketKey<Packet> Package = new(nameof(Package));
         
     extension(Packet packet)
     {
@@ -33,10 +34,21 @@ public class PacketUsage
     {
         var packet = Packet.From(JsonData());
         Assert.Equal("Foo", packet.ID);
+
+        var value = PacketTests.Any.AString();
+        packet.ID = value;
+        Assert.Equal(value, packet.ID);
+    }
+
+    [Fact]
+    public void GetPackageFromJson()
+    {
+        var packet = Packet.From(JsonData());
         
-        packet.ID = "Bar";
+        var packet1 = packet.Get(CarExtensions.Package);
         
-        Assert.Equal("Bar", packet.ID);
+        Assert.NotNull(packet1);
+        Assert.Equal("Bar", packet1.ID);
     }
 
     private static IDictionary<string, object?>? JsonData()
@@ -44,10 +56,12 @@ public class PacketUsage
         var jsonElement = JsonElement.Parse(
             """
             {
-              "Id" : "Foo"
+              "Id" : "Foo",
+              "Package" : {
+                "Id" : "Bar"
+              }
             }
             """);
-        var deserialize = jsonElement.Deserialize<IDictionary<string,object?>>();
-        return deserialize;
+        return jsonElement.Deserialize<IDictionary<string,object?>>();
     }
 }

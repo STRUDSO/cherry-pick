@@ -24,18 +24,24 @@ public class Packet
 
     public void Set<TValue>(PacketKey<TValue> key, TValue value) 
         => _values[key.Key] = value;
-
+    
     public bool TryGetValue<TValue>(PacketKey<TValue> key, [MaybeNullWhen(false)] out TValue value)
     {
-        if (_values.TryGetValue(key.Key, out object? _value) && _value is TValue tvalue)
+        if (_values.TryGetValue(key.Key, out var _value) && _value is TValue tvalue)
         {
             value = tvalue;
             return true;
         }
 
-        if (_value is JsonElement)
+        if (_value is JsonElement element)
         {
-            value = ((JsonElement)_value).Deserialize<TValue>();
+            if (typeof(TValue) == typeof(Packet))
+            {
+                var dict = element.Deserialize<IDictionary<string, object?>>();
+                value = (TValue)(object)From(dict);
+                return true;
+            }
+            value = element.Deserialize<TValue>();
             return value != null;
         }
 
